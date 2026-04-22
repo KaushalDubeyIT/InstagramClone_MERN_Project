@@ -65,21 +65,29 @@ export const login = async (req, res) => {
       });
     }
     // Token generation
-    user={
-        _id:user._id,
-        username:user.username,
-        profilePicture:user.profilePicture,
-        bio:user.bio,
-        followers:user.followers,
-        following:user.following,
-        posts:user.posts
-    }
-    const token =await jwt.sign({userId:user._id},process.env.SECRET_KEY,{expiresIn:"1d"});
-    return res.cookie("token",token,{httpOnly:true,sameSite:"strict",maxAge:1*24*60*60*1000}).json({
-        message:`Welcome back ${user.username}`,
-        success:true,
-        user
-    })
+    const safeuser = {
+      _id: user._id,                             //user → full DB object
+      username: user.username,                   //safeUser → filtered version
+      profilePicture: user.profilePicture,
+      bio: user.bio,
+      followers: user.followers,
+      following: user.following,
+      posts: user.posts,
+    };
+    const token = await jwt.sign({ userId: user._id }, process.env.SECRET_KEY, {
+      expiresIn: "1d",
+    });
+    return res
+      .cookie("token", token, {
+        httpOnly: true,
+        sameSite: "strict",
+        maxAge: 1 * 24 * 60 * 60 * 1000,
+      })
+      .json({
+        message: `Welcome back ${user.username}`,
+        success: true,
+        user: safeuser,
+      });
   } catch (error) {
     console.log(error);
   }
@@ -87,54 +95,137 @@ export const login = async (req, res) => {
 
 // -----------------------Logout Logic-----------------------
 
-export const logout=async(_,res) => {
-    try {
-        return res.cookie("token","",{maxAge:0}).json({
-            message:"Logged our successfully",
-            success:true
-        })
-    } catch (error) {
-        console.log(error);
-    }
+export const logout = async (_, res) => {
+  try {
+    return res.cookie("token", "", { maxAge: 0 }).json({
+      message: "Logged our successfully",
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 // -----------------------getProfile Logic-----------------------
 
-export const getProfile=async(req,res) => {
-    try {
-      const userId=req.params.id;
-      let user = await User.findById(userId);
-      return res.status(200).json({
-        user,
-        success:true
-      })
-    } catch (error) {
-        console.log(error);
-    }
+export const getProfile = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    let user = await User.findById(userId);
+    return res.status(200).json({
+      user,
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 // -----------------------editProfile Logic-----------------------
 
-export const editProfile=async(req,res) => {
-    try {
-      const userId=req.id;
-      const {bio,gender}=req.body;
-      const profilePicture=req.file;
-      let cloudResponse;
+export const editProfile = async (req, res) => {
+  try {
+    const userId = req.id;
+    const { bio, gender } = req.body;
+    const profilePicture = req.file;
+    let cloudResponse;
 
-      if(profilePicture){
-        const fileUri = getDataUri(profilePicture);
-        await cloudinary.uploader.upload(fileUri);
-
-        const user=await User.findById(userId);
-        if(!user){
-            return res.status(404).json({
-                message:"User not found",
-                success:true
-            });        
-        }
-      }
-    } catch (error) {
-        console.log(error);
+    if (profilePicture) {
+      const fileUri = getDataUri(profilePicture);
+      cloudResponse = await cloudinary.uploader.upload(fileUri);
     }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        success: true,
+      });
+    }
+
+    if (bio) user.bio = bio;
+    if (gender) user.gender = gender;
+    if (profilePicture) user.profilePicture = cloudinary.secure_url;
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Profile Updated",
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// -----------------------suggestedUsers Logic-----------------------
+
+export const getSuggestedUsers = async (req, res) => {
+  try {
+    const suggestedUsers = await User.find({ _id: { $ne: req.id } }).select(
+      "-password",
+    );
+    if (!suggestedUsers) {
+      return res.status(400).json({
+        message: "Currently do not have any users",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      users: suggestedUsers,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// -----------------------follow_or_unfollow Logic-----------------------
+
+export const followOrUnfollow = async (req, res) => {
+  try {
+    const followKarneVala = req.id; //kaushal
+    const jiskoFollowKarunga = req.id; //shivani
+
+    if (followKarneVala === jiskoFollowKarunga) {
+      return res.status(400).json({
+        message: "You cannot follow or unfollow yourself",
+        success: false,
+      });
+    }
+
+    const user = await User.findById(followKarneVala);
+    const targetUser = await User.findById(jiskoFollowKarunga);
+
+    if (!user || !targetUser) {
+      return res.status(400).json({
+        message: "User not found",
+        success: false,
+      });
+    }
+
+    // mai check karunga ki follw karna h ya unfollow
+    const isFollowing = user.following.includes(jiskoFollowKarunga);
+
+    if (isFollowing) {
+      //Unfollow logic aayega
+      await Promise.all([
+        User.updateOne({_id: followKarneVala},{$pull:{following:jiskoFollowKarunga}}),
+        User.updateOne({_id: jiskoFollowKarunga},{$pull:{followers:followKarneVala}})
+      ])
+      return res.status(200).json({message:"Unfollowed successfully", success:true});
+      
+    } else {
+      //Follow logic aayega
+      await Promise.all([
+        User.updateOne({_id: followKarneVala},{$push:{following:jiskoFollowKarunga}}),
+        User.updateOne({_id: jiskoFollowKarunga},{$push:{followers:followKarneVala}})
+      ])
+      return res.status(200).json({message:"Followed successfully", success:true});
+
+    }
+  } catch (error) {
+    console.log(error);
+  }
 };
