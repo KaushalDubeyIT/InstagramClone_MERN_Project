@@ -1,12 +1,10 @@
 import express from "express";
+import dotenv from "dotenv/config";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import dotenv from "dotenv";
 import connectDB from "./utils/db.js";
 import userRoute from "./routes/user.route.js";
 
-//config
-dotenv.config();
 
 // app init
 const app = express();
@@ -23,6 +21,14 @@ const corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
+
+
+app.get("/",(req,res)=>{
+  res.status(201).json({
+    message:"Backend is working properly",
+    success:true
+  })
+})
 
 // yahan apni api aayengi
 app.use("/api/v1/user", userRoute);

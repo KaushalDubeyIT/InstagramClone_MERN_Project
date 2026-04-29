@@ -98,7 +98,7 @@ export const login = async (req, res) => {
 export const logout = async (_, res) => {
   try {
     return res.cookie("token", "", { maxAge: 0 }).json({
-      message: "Logged our successfully",
+      message: "Logged out successfully",
       success: true,
     });
   } catch (error) {
@@ -111,7 +111,7 @@ export const logout = async (_, res) => {
 export const getProfile = async (req, res) => {
   try {
     const userId = req.params.id;
-    let user = await User.findById(userId);
+    let user = await User.findById(userId).select("-password");
     return res.status(200).json({
       user,
       success: true
@@ -135,11 +135,11 @@ export const editProfile = async (req, res) => {
       cloudResponse = await cloudinary.uploader.upload(fileUri);
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select("-password");
     if (!user) {
       return res.status(404).json({
         message: "User not found",
-        success: true,
+        success: false,
       });
     }
 
@@ -156,6 +156,10 @@ export const editProfile = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+      success: false,
+    });
   }
 };
 
