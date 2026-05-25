@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import axios from "axios";
 import { toast } from "sonner";
+import { Link, useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 function Login() {
   const [input, setInput] = useState({
@@ -12,6 +14,7 @@ function Login() {
   });
 
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
@@ -33,6 +36,7 @@ function Login() {
         },
       );
       if (res.data.success) {
+        navigate("/");
         toast.success(res.data.message);
         setInput({
           email: "",
@@ -77,9 +81,23 @@ function Login() {
             className="focus-visible:ring-transparent my-2 w-75 h-10"
           />
         </div>
-        <Button type="submit" className="py-5">
-          Login
-        </Button>
+        {loading ? (
+          <Button className="py-5">
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Please wait
+          </Button>
+        ) : (
+          <Button type="submit" className="py-5">
+            Login
+          </Button>
+        )}
+
+        <span className="text-center">
+          Create a new account?{" "}
+          <Link to="/signup" className="text-blue-600">
+            Signup
+          </Link>
+        </span>
       </form>
     </div>
   );
