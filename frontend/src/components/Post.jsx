@@ -8,6 +8,7 @@ import { useState } from "react";
 
 const Post = () => {
   const [text,setText]=useState("");
+  const [open,setOpen]=useState(false);
 
   const changeEventHandler=(e)=>{
     const inputText= e.target.value;
@@ -45,7 +46,7 @@ const Post = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <FaRegHeart size={24} className="cursor-pointer hover:scale-104"/>
-          <MessageCircle className="cursor-pointer hover:scale-104"/>
+          <MessageCircle onClick={()=>setOpen(true)} className="cursor-pointer hover:scale-104"/>
           <Send className="cursor-pointer hover:scale-104"/>
         </div>
           <Bookmark className="cursor-pointer hover:scale-104"/>
@@ -55,8 +56,8 @@ const Post = () => {
         <span className="font-medium mr-2">username</span>
         caption
       </p>
-      <span>view all 10 comments</span>
-      <CommentDialog/>
+      <span onClick={()=>setOpen(true)} className="cursor-pointer text-sm text-gray-400">view all 10 comments</span>
+      <CommentDialog open={open} setOpen={setOpen} />
       <div className="flex items-center justify-between">
         <input
         type="text"
