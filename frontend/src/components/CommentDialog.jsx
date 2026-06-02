@@ -19,7 +19,7 @@ const CommentDialog = ({ open, setOpen }) => {
   };
 
   const sendMessageHandler=async()=>{
-    alert(text);
+    // alert(text);
   }
 
   return (

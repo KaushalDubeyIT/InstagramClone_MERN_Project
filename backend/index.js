@@ -32,7 +32,7 @@ app.get("/",(req,res)=>{
   })
 })
 
-// yahan apni api aayengi
+// api's
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/post", postRoute);
 app.use("/api/v1/message", messageRoute);

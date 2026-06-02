@@ -67,7 +67,7 @@ const Post = () => {
         className="outline-none text-sm w-full"
         />
         {
-          text && <span className="text-[#3BADF8]">Post</span>
+          text && <span className="text-[#3BADF8] cursor-pointer">Post</span>
         }
       </div>
     </div>

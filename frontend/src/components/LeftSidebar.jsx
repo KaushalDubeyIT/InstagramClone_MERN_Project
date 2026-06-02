@@ -12,49 +12,63 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { toast } from "sonner";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-
-const sidebarItems = [
-  { icon: <Home />, text: "Home" },
-  { icon: <Search />, text: "Search" },
-  { icon: <TrendingUp />, text: "Explore" },
-  { icon: <MessageCircle />, text: "Messages" },
-  { icon: <Heart />, text: "Notifications" },
-  { icon: <PlusSquare />, text: "Create" },
-  {
-    icon: (
-      <Avatar className="w-6 h-6">
-        <AvatarImage src="https://github.com/shadcn.png" />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
-    ),
-    text: "Profile",
-  },
-  { icon: <LogOut />, text: "Logout" },
-];
+import { useDispatch, useSelector } from "react-redux";
+import { setAuthUser } from "@/redux/authSlice";
+import { useState } from "react";
+import CreatePost from "./CreatePost";
 
 const LeftSidebar = () => {
-    const navigate= useNavigate();
+  const navigate = useNavigate();
+  const { user } = useSelector((store) => store.auth);
+  const dispatch = useDispatch();
+  const [open,setOpen] = useState(false);
 
-    const logOutHandler=async()=>{
-        try {
-            const res=await axios.get("http://localhost:8000/api/v1/user/logout",{withCredentials:true});
-            if(res.data.success){
-                navigate("/login");
-                toast.success(res.data.message)
-            }
-        } catch (error) {
-            toast.error(error.response.data.message);
-        }
+  const logOutHandler = async () => {
+    try {
+      const res = await axios.get("http://localhost:8000/api/v1/user/logout", {
+        withCredentials: true,
+      });
+      if (res.data.success) {
+        dispatch(setAuthUser(null));
+        navigate("/login");
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      toast.error(error.response.data.message);
     }
+  };
 
-    const sidebarHandler=(textType)=>{
-        if(textType == "Logout") logOutHandler();
+  const sidebarHandler = (textType) => {
+    if (textType == "Logout"){
+      logOutHandler();
+    }else if(textType == "Create"){
+      setOpen(true);
     }
+  };
+
+  const sidebarItems = [
+    { icon: <Home />, text: "Home" },
+    { icon: <Search />, text: "Search" },
+    { icon: <TrendingUp />, text: "Explore" },
+    { icon: <MessageCircle />, text: "Messages" },
+    { icon: <Heart />, text: "Notifications" },
+    { icon: <PlusSquare />, text: "Create" },
+    {
+      icon: (
+        <Avatar className="w-6 h-6">
+          <AvatarImage src={user?.profilePicture} />
+          <AvatarFallback>CN</AvatarFallback>
+        </Avatar>
+      ),
+      text: "Profile",
+    },
+    { icon: <LogOut />, text: "Logout" },
+  ];
 
   return (
     <div className="fixed top-0 left-0 z-10 border-r border-gray-300 px-4 h-screen w-[16%] ">
       <div className="flex flex-col gap-3">
-         <Link
+        <Link
           to="/"
           className="w-fit p-3 mt-4 mb-6 hover:bg-gray-100 rounded-lg cursor-pointer"
         >
@@ -64,7 +78,7 @@ const LeftSidebar = () => {
           return (
             <div
               key={index}
-              onClick={()=>sidebarHandler(item.text)}
+              onClick={() => sidebarHandler(item.text)}
               className="flex items-center gap-3 relative hover:bg-gray-100 rounded-lg cursor-pointer p-3"
             >
               {item.icon}
@@ -73,6 +87,7 @@ const LeftSidebar = () => {
           );
         })}
       </div>
+      <CreatePost open={open} setOpen={setOpen} />
     </div>
   );
 };
