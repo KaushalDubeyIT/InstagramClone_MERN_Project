@@ -5,10 +5,18 @@ import { Button } from "./ui/button";
 import { FaRegHeart } from "react-icons/fa";
 import CommentDialog from "./CommentDialog";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
+import axios from "axios";
+import { setPosts } from "@/redux/postSlice";
 
 const Post = ({post}) => {
   const [text,setText]=useState("");
   const [open,setOpen]=useState(false);
+  const [liked,setLiked] = useState( post.likes.includes(user?._id) || false)
+  const {user} = useSelector(store=>store.auth);
+  const {posts} = useSelector(store=>store.post);
+  const dispatch = useDispatch();
 
   const changeEventHandler=(e)=>{
     const inputText= e.target.value;
@@ -16,6 +24,33 @@ const Post = ({post}) => {
       setText(inputText);
     }else{
       setText("");
+    }
+  }
+
+  const deletePostHandler = async ()=>{
+    try {
+      const res = await axios.delete(`http://localhost:8000/api/v1/post/delete/${post._id}`,{withCredentials:true})
+      if(res.data.success){
+        const updatedPostData = posts.filter((postItem)=> postItem?._id !== post?._id)    // here postItem represents all single post
+        dispatch(setPosts(updatedPostData));
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    }
+  }
+
+  const likeOrDislikeHandler = async ()=>{
+    try {
+      const action = liked ? "dislike" : "like" ;
+      const res = await axios.get(`http://localhost:8000/api/v1/post/${post._id}/${action}`,{withCredentials:true})
+      if(res.data.success){
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
     }
   }
   
@@ -36,7 +71,9 @@ const Post = ({post}) => {
           <DialogContent className="flex flex-col items-center text-sm text-center">
             <Button variant="ghost" className="cursor-pointer w-fit text-[#ED4956] font-bold">Unfollow</Button>
             <Button variant="ghost" className="cursor-pointer w-fit">Add to favorites</Button>
-            <Button variant="ghost" className="cursor-pointer w-fit">Delete</Button>
+            {
+              user && user?._id === post?.author._id && <Button variant="ghost" onClick={deletePostHandler} className="cursor-pointer w-fit">Delete</Button>
+            }
           </DialogContent>
         </Dialog>
       </div>
@@ -45,7 +82,7 @@ const Post = ({post}) => {
       src={post.image} alt="post_img" />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <FaRegHeart size={24} className="cursor-pointer hover:scale-104"/>
+          <FaRegHeart size={24} onClick={likeOrDislikeHandler} className="cursor-pointer hover:scale-104"/>
           <MessageCircle onClick={()=>setOpen(true)} className="cursor-pointer hover:scale-104"/>
           <Send className="cursor-pointer hover:scale-104"/>
         </div>

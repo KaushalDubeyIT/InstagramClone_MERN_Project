@@ -220,7 +220,7 @@ export const deletePost = async (req, res) => {
   try {
     const authorId = req.id;
     const postId = req.params.id;
-    const post = await Post.find(postId);
+    const post = await Post.findById(postId);
     if (!post)
       return res
         .status(404)
@@ -231,11 +231,11 @@ export const deletePost = async (req, res) => {
       return res.status(403).json({ message: "unauthorized" });
 
     // Delete Post
-    await Post.findOneAndDelete(postId);
+    await Post.findByIdAndDelete(postId);
 
     // remove the post Id from the users post
     let user = await User.findById(authorId);
-    user.posts = user.posts.filter((id) => id.string() !== postId);
+    user.posts = user.posts.filter((id) => id.toString() !== postId);
     await user.save();
 
     // delete associalted comments

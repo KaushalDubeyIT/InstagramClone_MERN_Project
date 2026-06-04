@@ -8,7 +8,8 @@ import { readFileAsDataUrl } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setPosts } from "@/redux/postSlice";
 
 const CreatePost = ({ open, setOpen }) => {
   const imageRef = useRef();
@@ -17,6 +18,8 @@ const CreatePost = ({ open, setOpen }) => {
   const [imagePreview, setImagePreview] = useState("");
   const [loading, setLoading] = useState(false);
   const {user} = useSelector(store=>store.auth)
+  const {posts} = useSelector(store=>store.post)
+  const dispatch = useDispatch();
 
   const fileChangeHandler = async (e) => {
     const file = e.target.files?.[0];
@@ -35,7 +38,7 @@ const CreatePost = ({ open, setOpen }) => {
   setImagePreview("");
 }
 
-  const createPostHandler=async(e)=>{
+  const createPostHandler=async()=>{
     const formData = new FormData();
     formData.append("caption",caption);
     if(imagePreview) formData.append("image",file);
@@ -48,6 +51,8 @@ const CreatePost = ({ open, setOpen }) => {
         withCredentials:true
       });
       if(res.data.success){
+        dispatch(setPosts([res.data.post, ...posts]));
+        closeHandler();
         toast.success(res.data.message);
       }
     } catch (error) {
