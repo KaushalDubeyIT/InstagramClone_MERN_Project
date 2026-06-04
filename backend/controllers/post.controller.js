@@ -113,7 +113,7 @@ export const likePost = async (req, res) => {
   try {
     const likeKarneValeKiId = req.id;
     const postId = req.params.id;
-    const post = await Post.find(postId);
+    const post = await Post.findById(postId);
     if (!post)
       return res
         .status(404)
@@ -137,7 +137,7 @@ export const disLikePost = async (req, res) => {
   try {
     const disLikeKarneValeKiId = req.id;
     const postId = req.params.id;
-    const post = await Post.find(postId);
+    const post = await Post.findById(postId);
     if (!post)
       return res
         .status(404)

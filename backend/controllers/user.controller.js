@@ -81,7 +81,7 @@ export const login = async (req, res) => {
         }
         return null;
       })
-    ) 
+    ).filter(post => post !== null); 
 
 
     const safeuser = {

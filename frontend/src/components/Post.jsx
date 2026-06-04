@@ -13,9 +13,10 @@ import { setPosts } from "@/redux/postSlice";
 const Post = ({post}) => {
   const [text,setText]=useState("");
   const [open,setOpen]=useState(false);
-  const [liked,setLiked] = useState( post.likes.includes(user?._id) || false)
   const {user} = useSelector(store=>store.auth);
   const {posts} = useSelector(store=>store.post);
+  const [liked,setLiked] = useState( post.likes.includes(user?._id) || false)
+  const [postLike,setPostLike] = useState( post.likes.length);
   const dispatch = useDispatch();
 
   const changeEventHandler=(e)=>{
@@ -46,6 +47,21 @@ const Post = ({post}) => {
       const action = liked ? "dislike" : "like" ;
       const res = await axios.get(`http://localhost:8000/api/v1/post/${post._id}/${action}`,{withCredentials:true})
       if(res.data.success){
+        setLiked(!liked);
+
+        // likecounter
+        const updateLikes = liked ? postLike - 1 : postLike + 1 ;
+        setPostLike(updateLikes);
+
+        // updateing post
+        const updatedPostData = posts.map((p)=>
+          p._id === post._id ? {
+            ...p,
+            likes : liked ? p.likes.filter((id)=> id !== user._id) : [...p.likes, user._id]
+          } : p
+        );
+        dispatch(setPosts(updatedPostData));
+        
         toast.success(res.data.message);
       }
     } catch (error) {
@@ -88,7 +104,7 @@ const Post = ({post}) => {
         </div>
           <Bookmark className="cursor-pointer hover:scale-104"/>
       </div>
-      <span className="font-medium mb-2">{post.likes.length} likes</span>
+      <span className="font-medium mb-2">{postLike} likes</span>
       <p>
         <span className="font-medium mr-2">{post.author?.username}</span>
         {post.caption}
