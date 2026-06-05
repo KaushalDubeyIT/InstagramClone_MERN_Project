@@ -72,16 +72,21 @@ export const login = async (req, res) => {
     });
 
     // populate each post in the post array
-    const populatedPosts = await Promise.all(
+    const posts = await Promise.all(
       user.posts.map(async (postId) => {
         const post = await Post.findById(postId);
+
         if (!post) return null;
-        if(post.author.equals(user._id)){
+
+        if (post.author.equals(user._id)) {
           return post;
         }
+
         return null;
       })
-    ).filter(post => post !== null); 
+    );
+
+    const populatedPosts = posts.filter(post => post !== null);
 
 
     const safeuser = {
