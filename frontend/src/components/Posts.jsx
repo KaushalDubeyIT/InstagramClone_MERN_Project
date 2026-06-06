@@ -5,9 +5,12 @@ const Posts = () => {
   const { posts } = useSelector((store) => store.post);
   return (
     <div>
-      {posts?.map((post) =>
-        post ? <Post key={post._id} post={post} /> : null,
-      )}
+      {
+        Array.isArray(posts) &&
+        posts.map((post) => (
+          <Post key={post._id} post={post} />
+        ))
+      }
     </div>
   );
 };

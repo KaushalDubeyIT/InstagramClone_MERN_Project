@@ -8,7 +8,8 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import axios from "axios";
-import { setPosts } from "@/redux/postSlice";
+import { setPosts, setSelectedPost } from "@/redux/postSlice";
+import { Badge } from "./ui/badge";
 
 const Post = ({post}) => {
   const [text,setText]=useState("");
@@ -111,7 +112,10 @@ const Post = ({post}) => {
             <AvatarImage src={post.author?.profilePicture} />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
-          <h1>{post.author?.username}</h1>
+          <div className='flex items-center gap-3'>
+              <h1>{post.author?.username}</h1>
+              {user?._id === post.author?._id && <Badge variant="secondary">Author</Badge>}
+            </div>
         </div>
         <Dialog>
           <DialogTrigger asChild>
@@ -134,7 +138,10 @@ const Post = ({post}) => {
           {
             liked ? (<FaHeart size={24} onClick={likeOrDislikeHandler} className="cursor-pointer hover:scale-104 text-red-600"/>) : (<FaRegHeart size={24} onClick={likeOrDislikeHandler} className="cursor-pointer hover:scale-104"/>)
           }
-          <MessageCircle onClick={()=>setOpen(true)} className="cursor-pointer hover:scale-104"/>
+          <MessageCircle onClick={()=>{
+            dispatch(setSelectedPost(post));
+            setOpen(true);
+          }} className="cursor-pointer hover:scale-104"/>
           <Send className="cursor-pointer hover:scale-104"/>
         </div>
           <Bookmark className="cursor-pointer hover:scale-104"/>
@@ -144,7 +151,15 @@ const Post = ({post}) => {
         <span className="font-medium mr-2">{post.author?.username}</span>
         {post.caption}
       </p>
-      <span onClick={()=>setOpen(true)} className="cursor-pointer text-sm text-gray-400">view all {comment.length} comments</span>
+      {
+        comment.length > 0 && (
+          <span onClick={()=>{
+            dispatch(setSelectedPost(post));
+            setOpen(true);
+          }} className="cursor-pointer text-sm text-gray-400">view all {comment.length} comments</span>
+        )
+      }
+      
       <CommentDialog open={open} setOpen={setOpen} />
       <div className="flex items-center justify-between">
         <input
