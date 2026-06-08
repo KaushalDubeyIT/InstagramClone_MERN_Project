@@ -19,7 +19,7 @@ const CommentDialog = ({ open, setOpen }) => {
 
   useEffect(()=>{
     if(selectedPost){
-      setComment(selectedPost.comments);
+      setComment(selectedPost?.comments);
     }
   },[selectedPost])
 
@@ -84,12 +84,12 @@ const CommentDialog = ({ open, setOpen }) => {
                 <div className="flex gap-3 items-center">
                   <Link>
                     <Avatar>
-                      <AvatarImage src={selectedPost.author.profilePicture} />
+                      <AvatarImage src={selectedPost?.author?.profilePicture} />
                       <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
                   </Link>
                   <div>
-                    <Link className="font-semibold">{selectedPost.author.username}</Link>
+                    <Link className="font-semibold">{selectedPost?.author?.username}</Link>
                   </div>
                 </div>
                 <Dialog>
