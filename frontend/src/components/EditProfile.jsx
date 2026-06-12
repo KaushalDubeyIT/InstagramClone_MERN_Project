@@ -5,7 +5,14 @@ import { Button } from "./ui/button";
 import { useRef, useState } from "react";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import axios from "axios";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -13,60 +20,63 @@ import { useNavigate } from "react-router-dom";
 import { setAuthUser } from "@/redux/authSlice";
 
 const EditProfile = () => {
+  const imageRef = useRef();
+  const { user } = useSelector((store) => store.auth);
+  const [loading, setLoading] = useState(false);
+  const [input, setInput] = useState({
+    profilePicture: user?.profilePicture,
+    bio: user?.bio,
+    gender: user?.gender,
+  });
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-    const imageRef = useRef();
-    const { user } = useSelector((store) => store.auth);
-    const [loading, setLoading] = useState(false);
-    const [input, setInput] = useState({
-        profilePicture:user?.profilePicture,
-        bio:user?.bio,
-        gender:user?.gender,
-    })
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
+  const fileChangeHandler = (e) => {
+    const file = e.target.files?.[0];
+    if (file) setInput({ ...input, profilePicture: file });
+  };
 
-    const fileChangeHandler =(e)=>{
-        const file = e.target.files?.[0];
-        if(file) setInput({...input, profilePicture:file});
-    }
+  const selectChangeHandler = (value) => {
+    setInput({ ...input, gender: value });
+  };
 
-    const selectChangeHandler =(value)=>{
-        setInput({...input,gender:value});
-    }
-
-    const editProfileHandler = async (e) => {
-        e.preventDefault();
-        const formData= new FormData();
-        formData.append("bio",input.bio);
-        formData.append("gender",input.gender);
-        if(input.profilePicture) formData.append("profilePicture",input.profilePicture);
-        try {
-            setLoading(true);
-            const res = await axios.post("http://localhost:8000/api/v1/user/profile/edit",formData,{
-        headers:{
-          "Content-Type":"multipart/form-data"
+  const editProfileHandler = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("bio", input.bio);
+    formData.append("gender", input.gender);
+    if (input.profilePicture)
+      formData.append("profilePicture", input.profilePicture);
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        "http://localhost:8000/api/v1/user/profile/edit",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
         },
-        withCredentials:true
-      });
-      if(res.data.success){
-        const updatedUserData={
-            ...user,
-            bio:res.data.user?.bio,
-            gender:res.data.user?.gender,
-            profilePicture:res.data.user?.profilePicture,
-        }
+      );
+      if (res.data.success) {
+        const updatedUserData = {
+          ...user,
+          bio: res.data.user?.bio,
+          gender: res.data.user?.gender,
+          profilePicture: res.data.user?.profilePicture,
+        };
         dispatch(setAuthUser(updatedUserData));
         navigate(`/profile/${user?._id}`);
         toast.success(res.data.message);
       }
-        } catch (error) {
-            console.log(error);
-            toast.error(error.response.data.message);
-        }
-        finally{
-            setLoading(false);
-         }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    } finally {
+      setLoading(false);
     }
+  };
 
   return (
     <div className="flex max-w-xl mx-auto pl-10">
@@ -105,13 +115,21 @@ const EditProfile = () => {
         {/* Bio */}
         <div className="w-full mt-2">
           <Label className="font-bold text-lg mb-3">Bio</Label>
-          <Textarea value={input.bio} onChange={(e)=>setInput({...input,bio:e.target.value})} name="bio" className="focus-visible:ring-transparent" />
+          <Textarea
+            value={input.bio}
+            onChange={(e) => setInput({ ...input, bio: e.target.value })}
+            name="bio"
+            className="focus-visible:ring-transparent"
+          />
         </div>
 
         {/* Gender */}
         <div className="w-full mt-2">
           <Label className="font-bold text-lg mb-3">Gender</Label>
-          <Select defaultValue={input.gender} onValueChange={selectChangeHandler}>
+          <Select
+            defaultValue={input.gender}
+            onValueChange={selectChangeHandler}
+          >
             <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
@@ -127,16 +145,16 @@ const EditProfile = () => {
 
         {/* Submit Button */}
         <div onClick={editProfileHandler} className="w-full mt-2">
-            {
-                loading ? (
-                 <Button className="w-full cursor-pointer bg-[#495DF9] text-white hover:bg-[#384ef4] h-10">
-                    <Loader2 className="w-full h-10 animate-spin" />
-                    Please wait</Button>   
-                ) : (
-                 <Button className="w-full cursor-pointer bg-[#495DF9] text-white hover:bg-[#384ef4] h-10">Submit</Button>   
-                )
-            }
-            
+          {loading ? (
+            <Button className="w-full cursor-pointer bg-[#495DF9] text-white hover:bg-[#384ef4] h-10">
+              <Loader2 className="w-full h-10 animate-spin" />
+              Please wait
+            </Button>
+          ) : (
+            <Button className="w-full cursor-pointer bg-[#495DF9] text-white hover:bg-[#384ef4] h-10">
+              Submit
+            </Button>
+          )}
         </div>
       </section>
     </div>
