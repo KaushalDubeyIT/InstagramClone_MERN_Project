@@ -49,19 +49,19 @@ const Profile = () => {
             <div className="flex gap-3 items-center">
               <p>
                 <span className="font-semibold">
-                  {userProfile?.posts.length}
+                  {userProfile?.posts?.length || 0}
                 </span>{" "}
                 <span className="text-sm">posts</span>
               </p>
               <p>
                 <span className="font-semibold">
-                  {userProfile?.followers.length}
+                  {userProfile?.followers?.length || 0}
                 </span>{" "}
                 <span className="text-sm">followers</span>
               </p>
               <p>
                 <span className="font-semibold">
-                  {userProfile?.following.length}
+                  {userProfile?.following?.length || 0}
                 </span>{" "}
                 <span className="text-sm">following</span>
               </p>
@@ -131,11 +131,11 @@ const Profile = () => {
                     <div className="flex items-center space-x-4 text-white">
                       <button className="flex items-center gap-2 hover:text-gray-300">
                         <Heart/>
-                        <span>{post?.likes.length}</span>
+                        <span>{post?.likes?.length || 0}</span>
                       </button>
                       <button className="flex items-center gap-2 hover:text-gray-300">
                         <MessageCircle size={21}/>
-                        <span>{post?.comments.length}</span>
+                        <span>{post?.comments?.length || 0}</span>
                       </button>
                     </div>
                   </div>

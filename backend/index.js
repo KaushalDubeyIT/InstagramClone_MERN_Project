@@ -6,10 +6,9 @@ import connectDB from "./utils/db.js";
 import userRoute from "./routes/user.route.js";
 import postRoute from "./routes/post.route.js";
 import messageRoute from "./routes/message.route.js";
-
+import { app, server } from "./socket/socket.js";
 
 // app init
-const app = express();
 const PORT = process.env.PORT;
 
 // middlewares
@@ -40,7 +39,7 @@ app.use("/api/v1/message", messageRoute);
 // DB connection + server start
 connectDB()
   .then(() => {
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`server is running on port http://localhost:${PORT}`);
     });
   })

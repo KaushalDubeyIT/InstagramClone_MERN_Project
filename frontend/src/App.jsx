@@ -6,6 +6,10 @@ import Home from "./components/Home";
 import Profile from "./components/Profile";
 import EditProfile from "./components/EditProfile";
 import ChatPage from "./components/ChatPage";
+import { io } from "socket.io-client";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setSocket } from "./redux/socketSlice";
 
 const browserRouter = createBrowserRouter([
   {
@@ -41,6 +45,24 @@ const browserRouter = createBrowserRouter([
 ]);
 
 function App() {
+  const { user } = useSelector((store) => store.auth);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (user) {
+      const socketio = io("http://localhost:8000", {
+        query: {
+          userId: user?._id,
+        },
+        transports: ["websocket"],
+      });
+      dispatch(setSocket(socketio));
+
+      // Listining all the events
+    }
+
+  }, []);
+
   return (
     <div>
       <RouterProvider router={browserRouter} />

@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setAuthUser } from "@/redux/authSlice";
+import { setAuthUser, setSelectedUser } from "@/redux/authSlice";
 import { useState } from "react";
 import CreatePost from "./CreatePost";
 import { setPosts, setSelectedPost } from "@/redux/postSlice";
@@ -33,6 +33,7 @@ const LeftSidebar = () => {
         dispatch(setAuthUser(null));
         dispatch(setSelectedPost(null));
         dispatch(setPosts([]));
+        dispatch(setSelectedUser(null));
         navigate("/login");
         toast.success(res.data.message);
       }
