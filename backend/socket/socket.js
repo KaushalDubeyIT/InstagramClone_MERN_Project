@@ -1,4 +1,4 @@
-import { server } from "socket.io";
+import { Server } from "socket.io";
 import express from "express";
 import http from "http";
 
@@ -14,6 +14,9 @@ const io = new Server(server, {
 });
 
 const userSocketMap = {}; // this stores socket id corresponding to the user id ; userId -> socektId
+                          // Ye object online users ka record rakhta hai
+
+export const getReceiverSocketId = (receiverId) => userSocketMap[receiverId];
 
 io.on("connection", (socket) => {
   const userId = socket.handshake.query.userId;

@@ -1,5 +1,6 @@
 import { Conversation } from "../models/conversation.model.js";
 import { Message } from "../models/message.model.js";
+import { getReceiverSocketId } from "../socket/socket.js";
 
 // -----------------------sendMessage Logic-----------------------
 
@@ -7,7 +8,7 @@ export const sendMessage = async (req, res) => {
   try {
     const senderId = req.id;
     const receiverId = req.params.id;
-    const { message } = req.body;
+    const {textMessage:message } = req.body;
 
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, receiverId] },
@@ -31,6 +32,10 @@ export const sendMessage = async (req, res) => {
     await Promise.all([conversation.save(), newMessage.save()]);
 
     // implement socket.io for real time data transfer
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if(receiverSocketId){
+      io.to(receiverSocketId).emit("newMessage",newMessage);
+    }
 
     return res.status(200).json({ success: true, newMessage });
 
@@ -47,7 +52,7 @@ export const getMessage = async (req, res) => {
     const receiverId = req.params.id;
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, receiverId] },
-    });
+    }).populate("messages");
     if(!conversation) return res.status(200).json({success:true,message:[]});
 
     return res.status(200).json({success:true,message:conversation?.messages});

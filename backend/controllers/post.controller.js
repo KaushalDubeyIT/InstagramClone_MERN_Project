@@ -3,6 +3,7 @@ import cloudinary from "../utils/cloudinary.js";
 import { Post } from "../models/post.model.js";
 import { User } from "../models/user.model.js";
 import { Comment } from "../models/comment.model.js";
+import { getReceiverSocketId } from "../socket/socket.js";
 
 // -----------------------addNewPost Logic-----------------------
 
@@ -124,6 +125,21 @@ export const likePost = async (req, res) => {
     await post.save();
 
     // implementation of socket.io for real time notification
+    const user = await User.findById(likeKarneValeKiId).select("username profilePicture");
+    const postOwnerId = post.author.toString();
+    
+    if(postOwnerId !== likeKarneValeKiId){
+      //emit a notification event
+      const notification = {
+        type : "like",
+        userId : likeKarneValeKiId,
+        userDetails : user,
+        postId,
+        message : "Your post was liked"
+      }
+      const postOwnerSocketId = getReceiverSocketId(postOwnerId);
+      io.to(postOwnerSocketId).emit("notification",notification);
+    }
 
     return res.status(200).json({ message: "Post Liked", success: true });
   } catch (error) {
@@ -148,6 +164,21 @@ export const disLikePost = async (req, res) => {
     await post.save();
 
     // implementation of socket.io for real time notification
+    const user = await User.findById(likeKarneValeKiId).select("username profilePicture");
+    const postOwnerId = post.author.toString();
+    
+    if(postOwnerId !== likeKarneValeKiId){
+      //emit a notification event
+      const notification = {
+        type : "like",
+        userId : likeKarneValeKiId,
+        userDetails : user,
+        postId,
+        message : "Your post was liked"
+      }
+      const postOwnerSocketId = getReceiverSocketId(postOwnerId);
+      io.to(postOwnerSocketId).emit("notification",notification);
+    }
 
     return res.status(200).json({ message: "Post Disliked", success: true });
   } catch (error) {

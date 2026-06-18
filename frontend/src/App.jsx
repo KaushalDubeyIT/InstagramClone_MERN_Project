@@ -10,6 +10,7 @@ import { io } from "socket.io-client";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSocket } from "./redux/socketSlice";
+import { setOnlineUsers } from "./redux/chatSlice";
 
 const browserRouter = createBrowserRouter([
   {
@@ -46,6 +47,7 @@ const browserRouter = createBrowserRouter([
 
 function App() {
   const { user } = useSelector((store) => store.auth);
+  const { socket } = useSelector((store) => store.socketio);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -59,9 +61,22 @@ function App() {
       dispatch(setSocket(socketio));
 
       // Listining all the events
+      socketio.on("getOnlineUsers",(onlineUsers)=>{
+        dispatch(setOnlineUsers(onlineUsers));
+      })
+
+      return ()=>{
+        socketio.close();
+        dispatch(setSocket(null));
+      }
     }
 
-  }, []);
+      else if(socket){
+        socket?.close();
+        dispatch(setSocket(null));
+      }
+
+  }, [user, dispatch]);
 
   return (
     <div>
