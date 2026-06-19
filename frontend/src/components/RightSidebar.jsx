@@ -9,14 +9,14 @@ const RightSidebar = () => {
   return (
     <div className="w-[25vw] my-10 pr-32">
       <div className="flex items-center gap-2">
-        <Link to={`/profile/${user._id}`}>
+        <Link to={`/profile/${user?._id}`}>
           <Avatar className="h-10 w-10">
             <AvatarImage src={user?.profilePicture} />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
         </Link>
         <div className="flex flex-col justify-center">
-          <h1 className="font-semibold text-sm"><Link to={`/profile/${user._id}`}>{user?.username}</Link></h1>
+          <h1 className="font-semibold text-sm"><Link to={`/profile/${user?._id}`}>{user?.username}</Link></h1>
           <span className="text-gray-600 text-sm">
             {user?.bio || "Bio here..."}
           </span>
