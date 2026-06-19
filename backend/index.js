@@ -7,6 +7,7 @@ import userRoute from "./routes/user.route.js";
 import postRoute from "./routes/post.route.js";
 import messageRoute from "./routes/message.route.js";
 import { app, server } from "./socket/socket.js";
+import path from "path";
 
 // app init
 const PORT = process.env.PORT;
@@ -23,6 +24,8 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+const __dirname = path.resolve();
+
 
 app.get("/",(req,res)=>{
   res.status(201).json({
@@ -35,6 +38,11 @@ app.get("/",(req,res)=>{
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/post", postRoute);
 app.use("/api/v1/message", messageRoute);
+
+app.use(express.static(path.join(__dirname, "/frontend/dist")));
+app.get("/{*any}",(req,res)=>{
+  res.sendFile(path.resolve(__dirname,"frontend","dist","index.html"));
+})
 
 // DB connection + server start
 connectDB()
