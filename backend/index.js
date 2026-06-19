@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 
 //cors config
 const corsOptions = {
-  origin: "http://localhost:5173",
+  origin: process.env.URL,
   credentials: true,
 };
 app.use(cors(corsOptions));
