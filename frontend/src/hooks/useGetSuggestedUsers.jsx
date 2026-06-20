@@ -8,7 +8,7 @@ const useGetSuggestedUsers = () => {
     useEffect(() => {
         const fetchSuggestedUsers = async () => {
             try {
-                const res = await axios.get('https://instagramclone-mern-project.onrender.com/login/api/v1/user/suggested', { withCredentials: true });
+                const res = await axios.get('https://instagramclone-mern-project.onrender.com/api/v1/user/suggested', { withCredentials: true });
                 if (res.data.success) {
                     dispatch(setSuggestedUsers(res.data.users));
                 }

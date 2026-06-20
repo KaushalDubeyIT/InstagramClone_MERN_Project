@@ -29,7 +29,7 @@ function SignUp() {
     try {
       setLoading(true);
       const res = await axios.post(
-        "https://instagramclone-mern-project.onrender.com/login/api/v1/user/register",
+        "https://instagramclone-mern-project.onrender.com/api/v1/user/register",
         input,
         {
           headers: {
