@@ -69,7 +69,7 @@ export const getAllPost = async (req, res) => {
         sort: { createdAt: -1 },
         populate: {
           path: "author",
-          select: "username profilePicture",
+          select: "username profilePicture followers following",
         },
       });
 

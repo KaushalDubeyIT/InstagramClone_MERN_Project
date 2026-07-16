@@ -143,7 +143,7 @@ const Profile = () => {
           </div>
         ) : isFollowing ? (
           <div className="flex gap-4 mt-6 w-full justify-center">
-            <Button onClick={followOrUnfollowHandler} className="bg-[#495DF9] text-white hover:bg-gray-200 w-70 h-10 cursor-pointer">
+            <Button onClick={followOrUnfollowHandler} variant="secondary" className="hover:bg-gray-200 w-70 h-10 cursor-pointer">
               UnFollow
             </Button>
             <Button
