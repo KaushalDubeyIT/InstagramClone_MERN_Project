@@ -1,15 +1,19 @@
 import useGetUserProfile from "@/hooks/useGetUserProfile";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { AtSign, Heart, MessageCircle } from "lucide-react";
 import { useState } from "react";
+import axios from "axios";
+import { toast } from "sonner";
+import { setAuthUser, setUserProfile } from "@/redux/authSlice";
 
 const Profile = () => {
   const params = useParams();
   const userId = params.id;
+  const dispatch = useDispatch();
   useGetUserProfile(userId);
   const [activeTab, setActiveTab] = useState("posts");
 
@@ -17,11 +21,54 @@ const Profile = () => {
   console.log(userProfile);
 
   const isLoggedInUser = user?._id === userProfile?._id;
-  const isFollowing = true;
+  const isFollowing = userProfile?.followers?.includes(user?._id);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   }
+
+  const followOrUnfollowHandler = async () => {
+  try {
+    const res = await axios.post(
+      `https://instagramclone-mern-project.onrender.com/api/v1/user/followorunfollow/${userProfile._id}`,
+      {},
+      {
+        withCredentials: true,
+      }
+    );
+
+    if (res.data.success) {
+
+      // Logged in user ki following update karo
+      const updatedFollowing = isFollowing
+        ? user.following.filter((id) => id !== userProfile._id)
+        : [...user.following, userProfile._id];
+
+      dispatch(
+        setAuthUser({
+          ...user,
+          following: updatedFollowing,
+        })
+      );
+
+      // Profile user ke followers update karo
+      const updatedFollowers = isFollowing
+        ? userProfile.followers.filter((id) => id !== user._id)
+        : [...userProfile.followers, user._id];
+
+      dispatch(
+        setUserProfile({
+          ...userProfile,
+          followers: updatedFollowers,
+        })
+      );
+
+      toast.success(res.data.message);
+    }
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Something went wrong");
+  }
+};
 
   const displayedPost = activeTab === "posts" ? userProfile?.posts : userProfile?.bookmarks ;
 
@@ -96,8 +143,8 @@ const Profile = () => {
           </div>
         ) : isFollowing ? (
           <div className="flex gap-4 mt-6 w-full justify-center">
-            <Button className="bg-[#495DF9] text-white hover:bg-[#384ef4] w-70 h-10 cursor-pointer">
-              Follow
+            <Button onClick={followOrUnfollowHandler} className="bg-[#495DF9] text-white hover:bg-gray-200 w-70 h-10 cursor-pointer">
+              UnFollow
             </Button>
             <Button
               variant="secondary"
@@ -108,7 +155,7 @@ const Profile = () => {
           </div>
         ) : (
           <div className="mt-6">
-            <Button className="bg-[#495DF9] text-white hover:bg-[#384ef4] w-140 h-10 cursor-pointer">
+            <Button onClick={followOrUnfollowHandler} className="bg-[#495DF9] text-white hover:bg-[#384ef4] w-140 h-10 cursor-pointer">
               Follow
             </Button>
           </div>
