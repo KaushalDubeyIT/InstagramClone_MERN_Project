@@ -1,6 +1,6 @@
 import useGetUserProfile from "@/hooks/useGetUserProfile";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -16,6 +16,8 @@ const Profile = () => {
   const dispatch = useDispatch();
   useGetUserProfile(userId);
   const [activeTab, setActiveTab] = useState("posts");
+
+  const navigate = useNavigate();
 
   const { userProfile, user } = useSelector((store) => store.auth);
   console.log(userProfile);
@@ -148,6 +150,7 @@ const Profile = () => {
             </Button>
             <Button
               variant="secondary"
+              onClick={() => navigate(`/chat/${userProfile._id}`)}
               className="hover:bg-gray-200 w-70 h-10 cursor-pointer"
             >
               Message

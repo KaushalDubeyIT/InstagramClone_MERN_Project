@@ -32,7 +32,7 @@ const browserRouter = createBrowserRouter([
         element: <ProtectedRoutes><EditProfile /></ProtectedRoutes>,
       },
       {
-        path: "/chat",
+        path: "/chat/:id?",
         element: <ProtectedRoutes><ChatPage /></ProtectedRoutes>,
       },
     ],
