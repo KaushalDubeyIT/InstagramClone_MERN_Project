@@ -82,7 +82,7 @@ function App() {
         dispatch(setSocket(null));
       }
 
-  }, [user]);
+  }, [user,dispatch]);
 
   return (
     <div>

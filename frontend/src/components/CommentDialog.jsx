@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -10,6 +10,7 @@ import Comment from "./Comment";
 import axios from "axios";
 import { toast } from "sonner";
 import { setPosts } from "@/redux/postSlice";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 const CommentDialog = ({ open, setOpen }) => {
   const [text, setText] = useState("");;
@@ -71,6 +72,9 @@ const CommentDialog = ({ open, setOpen }) => {
           onInteractOutside={() => setOpen(false)}
           className="p-0 !max-w-3xl"
         >
+            <VisuallyHidden>
+              <DialogTitle>Comments</DialogTitle>
+            </VisuallyHidden>
           <div className="flex flex-1">
             <div className="w-1/2 h-[75vh]">
               <img
@@ -97,6 +101,9 @@ const CommentDialog = ({ open, setOpen }) => {
                     <MoreHorizontal className="cursor-pointer" />
                   </DialogTrigger>
                   <DialogContent className="flex flex-col items-center text-sm text-center">
+                    <VisuallyHidden>
+                      <DialogTitle>Post Options</DialogTitle>
+                    </VisuallyHidden>
                     <Button
                       variant="ghost"
                       className="cursor-pointer w-fit text-[#ED4956] font-bold"

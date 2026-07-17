@@ -19,6 +19,8 @@ import CreatePost from "./CreatePost";
 import { setPosts, setSelectedPost } from "@/redux/postSlice";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Button } from "./ui/button";
+import { clearLikeNotifications } from "@/redux/rtnSlice";
+
 
 const LeftSidebar = () => {
   const navigate = useNavigate();
@@ -98,7 +100,13 @@ const LeftSidebar = () => {
               {item.text}
               {
                 item.text === "Notifications" && likeNotification.length > 0 && (
-                  <Popover>
+                  <Popover
+                    onOpenChange={(open) => {
+                      if (!open) {
+                        dispatch(clearLikeNotifications());
+                      }
+                    }}
+                  >
                     <PopoverTrigger asChild>
                       <Button size="icon" className="rounded-full h-5 w-5 bg-red-600 absolute bottom-6 left-6 cursor-pointer" >{likeNotification.length}</Button>
                     </PopoverTrigger>
@@ -108,7 +116,7 @@ const LeftSidebar = () => {
                           likeNotification.length === 0 ? (<p>No new notification</p>) : (
                             likeNotification.map((notification)=>{
                               return (
-                                <div key={notification.userid} className="flex items-center gap-2 my-3" >
+                                <div key={notification.userId} className="flex items-center gap-2 my-3" >
                                   <Avatar className="cursor-pointer" >
                                     <AvatarImage src={notification.userDetails?.profilePicture} />
                                     <AvatarFallback>CN</AvatarFallback>
